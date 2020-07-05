@@ -42,6 +42,16 @@ func whileWithForName(max int) {
 	fmt.Println(max)
 }
 
+// Defer: It only evaluates the function but executes
+// it only when the wrapping function ends
+func anotherFuncWithDefer() {
+	defer fmt.Println("You'll see this when 'anotherFuncWithDefer' executes!")
+
+	fmt.Println("After this, the `defer` statement will execute")
+	exampleVar := 2 + 3
+	fmt.Println(exampleVar)
+}
+
 func main() {
 	// Basic Hello World
 	fmt.Printf("hello, world!\n")
@@ -120,11 +130,194 @@ func main() {
 		fmt.Println("Good Afternoon")
 	}
 
-	// Defer: It only evaluates the function but executes
-	// it only when the wrapping function ends
-	func anotherFuncWithDefer(value int){
-		defer fmt.Println("You'll see this when 'anotherFuncWithDefer' executes!")
-		fmt.Println("After this, the `defer` statement will execute")
+	/*
+		POINTERS in Go. They hold the memory address of the value
+	*/
+	var pointer *int //the type *T is a pointer to a T value
+
+	// The & operatior generates a pointer to its operand
+	// In this case the operand is the variable `r`
+	r := 42
+	pointer = &r
+
+	// Now if we print p, it will print the value of 'r'
+	fmt.Println(*pointer)
+
+	// We can change the value of the pointer at any time
+	*pointer = 22
+
+	/*
+		STRUCTS: It's a collection of fields.
+	*/
+	type ExampleStruct struct {
+		X int
+		Y int
 	}
 
+	fmt.Println(ExampleStruct{1, 2})
+
+	// How to access a struct field
+	es := ExampleStruct{1, 2}
+	fmt.Println(es.X)
+	fmt.Println(es.Y)
+
+	// Struct Literals
+	v3 := ExampleStruct{X: 2, Y: 3}
+	fmt.Println(v3)
+
+	/*
+		ARRAYS
+	*/
+	var exampleArray [3]string
+	exampleArray[0] = "Hello"
+	exampleArray[1] = ","
+	exampleArray[2] = "World!"
+	fmt.Println(exampleArray)
+
+	anotherExampleArray := [4]int{1, 2, 3, 4}
+	fmt.Println(anotherExampleArray)
+
+	// Slice. They are like references to Arrays
+	// Change the values of the slice, changes the underlying array
+	fmt.Println(anotherExampleArray[1:3])
+
+	// Slice Literals
+	anStruct := []struct {
+		i int
+		b bool
+	}{
+		{2, true},
+		{1, false},
+	}
+
+	fmt.Println(anStruct)
+
+	// Length and Capacity
+	anArray := [10]int{1, 2, 3}
+	fmt.Println(len(anArray))
+	fmt.Println(cap(anArray))
+
+	anSlice := anArray[0:3]
+	fmt.Println(len(anSlice))
+	fmt.Println(cap(anSlice))
+
+	// Make function and Slices
+	varA := make([]int, 5)
+	fmt.Println(varA)
+
+	// Slices of Slices
+	board := [][]string{
+		[]string{"-", "-", "-"},
+		[]string{"-", "-", "-"},
+		[]string{"-", "-", "-"},
+	}
+	board[0][2] = "X"
+	board[2][1] = "O"
+	board[2][0] = "O"
+
+	fmt.Println(board)
+
+	// Using the Append Function
+	justAnArray := []string{"hola"}
+	fmt.Println(append(justAnArray, "adios"))
+
+	// The Range Element
+	rangeArray := [5]string{"one", "two", "three", "four", "five"}
+	for i, v := range rangeArray {
+		fmt.Println(i)
+		fmt.Println(v)
+	}
+
+	// Maps
+	m := make(map[string]string)
+	m["key1"] = "value1"
+	m["key2"] = "value2"
+	fmt.Println(m)
+
+	// Literal map
+	type MapValue struct {
+		surname string
+		age     int
+	}
+	var newM = map[string]MapValue{
+		"John": MapValue{surname: "Snow", age: 29},
+	}
+	fmt.Println(newM)
+
+	// Maps Mutation
+	newM["John"] = MapValue{"Snow", 30}
+	elem := newM["John"]
+	fmt.Println(elem)
+
+	// Test if an element is in the map
+	elem2, ok := m["John"] // if "John" is in m, ok = true
+	fmt.Println(elem2, ok)
+
+	// Test from methodName defined in newType
+	newTypeInst := newType{X: 2, Y: 10}
+	fmt.Println(newTypeInst.methodName(3))
+
+	// Test with pointer struct
+	fmt.Println("Testing pointers on method receivers")
+	var typePointer *anotherTypeToBePointered
+	typeValueA := anotherTypeToBePointered{X: 2, Y: 2}
+	typeValueB := anotherTypeToBePointered{X: 3, Y: 2}
+
+	typePointer = &typeValueA
+	fmt.Println(typePointer.pointeredMethod())
+
+	typeValueA = anotherTypeToBePointered{X: 5, Y: 2}
+	fmt.Println(typePointer.pointeredMethod())
+
+	typePointer = &typeValueB
+	fmt.Println(typePointer.pointeredMethod())
+
+	// Test on INTERFACES
+	fmt.Println("Testing interface")
+	var absI AbsInterface
+
+	myF := MyOwnFloat64(-3.1416)
+	absI = myF // Implementation of  AbsInterface in MyOwnFloat64
+	fmt.Println(absI.Abs())
+}
+
+/*
+	METHODS: Go does not have classes, but you can define methods inside types
+*/
+type newType struct {
+	X float64
+	Y float64
+}
+
+// A method has a receiver argument just before its name (methodName in this case)
+func (nt newType) methodName(factor float64) float64 {
+	return (nt.X * nt.Y) * factor
+}
+
+// Example of Method with a pointer receiver
+type anotherTypeToBePointered struct {
+	X float64
+	Y float64
+}
+
+func (attbp *anotherTypeToBePointered) pointeredMethod() float64 {
+	return attbp.X - attbp.Y
+}
+
+/*
+	INTERFACES: Defined as a set of method signatures
+*/
+type AbsInterface interface {
+	Abs() float64
+}
+
+type MyOwnFloat64 float64
+
+func (f MyOwnFloat64) Abs() float64 {
+	if f < 0 {
+		f = f * -1
+	} else {
+		f = f * 1
+	}
+	return float64(f)
 }
